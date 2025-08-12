@@ -3,6 +3,9 @@ package app
 import (
 	"fmt"
 
+	"github.com/Uikola/task-manager/internal/adapters/repository"
+	"github.com/Uikola/task-manager/internal/adapters/repository/inmemory"
+
 	"github.com/Uikola/task-manager/pkg/logger"
 	"github.com/Uikola/task-manager/pkg/logger/slog"
 
@@ -16,6 +19,8 @@ type serviceProvider struct {
 	loggerConfig config.Logger
 
 	logger logger.Logger
+
+	taskRepository repository.TaskRepository
 }
 
 // newServiceProvider returns a new, empty DI provider.
@@ -56,4 +61,12 @@ func (s *serviceProvider) Logger() logger.Logger {
 	}
 
 	return s.logger
+}
+
+func (s *serviceProvider) TaskRepository() repository.TaskRepository {
+	if s.taskRepository == nil {
+		s.taskRepository = inmemory.NewTaskRepository()
+	}
+
+	return s.taskRepository
 }
