@@ -31,30 +31,52 @@ func (r *taskRepository) Create(_ context.Context, task *entity.Task) error {
 	return nil
 }
 
-// GetByID retrieves a task by its unique id if found, otherwise returns repository.ErrTaskNotFound.
+// GetByID retrieves a task by its unique id if found, otherwise returns entity.ErrTaskNotFound.
 func (r *taskRepository) GetByID(_ context.Context, id string) (*entity.Task, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
 	task, ok := r.tasks[id]
 	if !ok {
-		return nil, repository.ErrTaskNotFound
+		return nil, entity.ErrTaskNotFound
 	}
 
 	return task, nil
 }
 
-// GetAll retrieves all tasks, optionally filtered by status.
-func (r *taskRepository) GetAll(_ context.Context, status *entity.TaskStatus) ([]*entity.Task, error) {
+// GetAllByStatuses retrieves all tasks, optionally filtered by status.
+func (r *taskRepository) GetAllByStatuses(ctx context.Context, statuses []entity.TaskStatus) ([]*entity.Task, error) {
+	if len(statuses) == 0 {
+		return r.getAll(ctx)
+	}
+
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
-	var filtered []*entity.Task
-	for _, t := range r.tasks {
-		if status == nil || t.Status == *status {
-			filtered = append(filtered, t)
+	statusSet := make(map[string]bool)
+	for _, status := range statuses {
+		statusSet[status.String()] = true
+	}
+
+	var filteredTasks []*entity.Task
+	for _, task := range r.tasks {
+		if statusSet[task.Status.String()] {
+			filteredTasks = append(filteredTasks, task)
 		}
 	}
 
-	return filtered, nil
+	return filteredTasks, nil
+}
+
+// getAll retrieves all tasks
+func (r *taskRepository) getAll(_ context.Context) ([]*entity.Task, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	tasks := make([]*entity.Task, 0, len(r.tasks))
+	for _, task := range r.tasks {
+		tasks = append(tasks, task)
+	}
+
+	return tasks, nil
 }

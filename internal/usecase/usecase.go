@@ -12,5 +12,5 @@ type TaskUsecase interface {
 
 	GetByID(ctx context.Context, id string) (*entity.Task, error)
 
-	GetAll(ctx context.Context, status *entity.TaskStatus) ([]*entity.Task, error)
+	GetAll(ctx context.Context, statuses []entity.TaskStatus) ([]*entity.Task, error)
 }
