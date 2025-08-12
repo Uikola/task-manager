@@ -14,5 +14,9 @@ func Load() error {
 		return fmt.Errorf("failed to set http port")
 	}
 
+	if err := os.Setenv(loggerConfigLevelKey, "0"); err != nil {
+		return fmt.Errorf("failed to set log level")
+	}
+
 	return nil
 }

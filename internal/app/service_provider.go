@@ -3,13 +3,19 @@ package app
 import (
 	"fmt"
 
+	"github.com/Uikola/task-manager/pkg/logger"
+	"github.com/Uikola/task-manager/pkg/logger/slog"
+
 	"github.com/Uikola/task-manager/internal/config"
 )
 
 // serviceProvider acts as a centralized dependency container (DI).
 // It lazily initializes and caches all shared services (singletons) and configuration required by the app.
 type serviceProvider struct {
-	httpConfig config.HTTP
+	httpConfig   config.HTTP
+	loggerConfig config.Logger
+
+	logger logger.Logger
 }
 
 // newServiceProvider returns a new, empty DI provider.
@@ -29,4 +35,25 @@ func (s *serviceProvider) HTTPConfig() config.HTTP {
 	}
 
 	return s.httpConfig
+}
+
+func (s *serviceProvider) LoggerConfig() config.Logger {
+	if s.loggerConfig == nil {
+		cfg, err := config.NewLoggerConfig()
+		if err != nil {
+			panic(fmt.Errorf("failed to get logger config: %w", err))
+		}
+
+		s.loggerConfig = cfg
+	}
+
+	return s.loggerConfig
+}
+
+func (s *serviceProvider) Logger() logger.Logger {
+	if s.logger == nil {
+		s.logger = slog.NewLogger(s.LoggerConfig().Level())
+	}
+
+	return s.logger
 }
