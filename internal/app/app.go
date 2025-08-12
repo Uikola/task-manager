@@ -37,13 +37,17 @@ func (a *App) Run(ctx context.Context) error {
 		closer.Wait()
 	}()
 
+	logWriter := a.serviceProvider.AsyncLogWriter()
+
+	logWriter.Start()
+
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
-		fmt.Println("Running http server")
+		a.serviceProvider.Logger().Info("starting HTTP server")
 		if err := a.runHTTPServer(); err != nil {
-			fmt.Println("Run HTTP server error:", err)
+			a.serviceProvider.Logger().Error("start HTTP server error", err)
 		}
 	}()
 
@@ -52,9 +56,9 @@ func (a *App) Run(ctx context.Context) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	fmt.Println("Shutting down http server")
+	a.serviceProvider.Logger().Info("shutting down http server")
 	if err := a.shutdownHTTPServer(ctx); err != nil {
-		fmt.Println("Shutdown error:", err)
+		a.serviceProvider.Logger().Error("shutdown error", err)
 	}
 
 	return nil

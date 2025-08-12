@@ -3,6 +3,10 @@ package app
 import (
 	"fmt"
 
+	"github.com/Uikola/task-manager/internal/adapters/logwriter"
+	"github.com/Uikola/task-manager/internal/adapters/logwriter/async"
+	"github.com/Uikola/task-manager/pkg/closer"
+
 	"github.com/Uikola/task-manager/internal/adapters/repository"
 	"github.com/Uikola/task-manager/internal/adapters/repository/inmemory"
 
@@ -21,6 +25,8 @@ type serviceProvider struct {
 	logger logger.Logger
 
 	taskRepository repository.TaskRepository
+
+	asyncLogWriter logwriter.LogWriter
 }
 
 // newServiceProvider returns a new, empty DI provider.
@@ -69,4 +75,17 @@ func (s *serviceProvider) TaskRepository() repository.TaskRepository {
 	}
 
 	return s.taskRepository
+}
+
+func (s *serviceProvider) AsyncLogWriter() logwriter.LogWriter {
+	if s.asyncLogWriter == nil {
+		s.asyncLogWriter = async.NewLogWriter(s.Logger(), 1000)
+
+		closer.Add(func() error {
+			s.asyncLogWriter.Stop()
+			return nil
+		})
+	}
+
+	return s.asyncLogWriter
 }
