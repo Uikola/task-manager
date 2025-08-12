@@ -6,7 +6,7 @@ import (
 )
 
 func Load() error {
-	if err := os.Setenv(httpConfigHostKey, "localhost"); err != nil {
+	if err := os.Setenv(httpConfigHostKey, "0.0.0.0"); err != nil {
 		return fmt.Errorf("failed to set http host")
 	}
 

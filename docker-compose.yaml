@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  task-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${HTTP_PORT}:${HTTP_PORT}"
+    container_name: task-manager
+    env_file:
+      - .env
+
+networks:
+  task-manager:
+    driver: bridge

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/Uikola/task-manager/internal/config"
 	"net/http"
 	"os"
 	"os/signal"
@@ -11,7 +12,6 @@ import (
 	"time"
 
 	httpserver "github.com/Uikola/task-manager/internal/adapters/transport/http"
-	"github.com/Uikola/task-manager/internal/config"
 	"github.com/Uikola/task-manager/pkg/closer"
 )
 
@@ -64,17 +64,9 @@ func (a *App) Run(ctx context.Context) error {
 	return nil
 }
 
-func (a *App) initConfig(_ context.Context) error {
-	if err := config.Load(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (a *App) initDeps(ctx context.Context) error {
 	inits := []func(context.Context) error{
-		a.initConfig,
+		//a.initConfig,
 		a.initServiceProvider,
 		a.initHTTPServer,
 	}
@@ -84,6 +76,14 @@ func (a *App) initDeps(ctx context.Context) error {
 		if err != nil {
 			return fmt.Errorf("init deps: %w", err)
 		}
+	}
+
+	return nil
+}
+
+func (a *App) initConfig(_ context.Context) error {
+	if err := config.Load(); err != nil {
+		return err
 	}
 
 	return nil
