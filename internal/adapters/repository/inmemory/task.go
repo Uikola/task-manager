@@ -58,7 +58,7 @@ func (r *taskRepository) GetAllByStatuses(ctx context.Context, statuses []entity
 		statusSet[status.String()] = true
 	}
 
-	var filteredTasks []*entity.Task
+	filteredTasks := make([]*entity.Task, 0)
 	for _, task := range r.tasks {
 		if statusSet[task.Status.String()] {
 			filteredTasks = append(filteredTasks, task)
