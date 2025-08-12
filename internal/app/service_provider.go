@@ -3,8 +3,10 @@ package app
 import (
 	"fmt"
 
+	"github.com/Uikola/task-manager/internal/adapters/transport/http/v1/task"
+
 	"github.com/Uikola/task-manager/internal/usecase"
-	"github.com/Uikola/task-manager/internal/usecase/task"
+	taskuc "github.com/Uikola/task-manager/internal/usecase/task"
 
 	"github.com/Uikola/task-manager/pkg/uuid"
 
@@ -35,6 +37,8 @@ type serviceProvider struct {
 	taskUsecase usecase.TaskUsecase
 
 	asyncLogWriter logwriter.LogWriter
+
+	taskHandler *task.Handler
 }
 
 // newServiceProvider returns a new, empty DI provider.
@@ -95,7 +99,7 @@ func (s *serviceProvider) TaskRepository() repository.TaskRepository {
 
 func (s *serviceProvider) TaskUsecase() usecase.TaskUsecase {
 	if s.taskUsecase == nil {
-		s.taskUsecase = task.NewUsecase(s.TaskRepository(), s.UUIDGenerator())
+		s.taskUsecase = taskuc.NewUsecase(s.TaskRepository(), s.UUIDGenerator())
 	}
 
 	return s.taskUsecase
@@ -112,4 +116,12 @@ func (s *serviceProvider) AsyncLogWriter() logwriter.LogWriter {
 	}
 
 	return s.asyncLogWriter
+}
+
+func (s *serviceProvider) TaskHandler() *task.Handler {
+	if s.taskHandler == nil {
+		s.taskHandler = task.NewHandler(s.AsyncLogWriter(), s.TaskUsecase())
+	}
+
+	return s.taskHandler
 }

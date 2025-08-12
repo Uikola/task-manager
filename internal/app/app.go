@@ -95,7 +95,7 @@ func (a *App) initServiceProvider(_ context.Context) error {
 }
 
 func (a *App) initHTTPServer(_ context.Context) error {
-	srv := httpserver.NewServer()
+	srv := httpserver.NewServer(a.serviceProvider.TaskHandler())
 
 	httpServer := &http.Server{
 		Addr:    a.serviceProvider.HTTPConfig().Address(),
