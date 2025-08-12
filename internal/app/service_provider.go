@@ -3,6 +3,8 @@ package app
 import (
 	"fmt"
 
+	"github.com/Uikola/task-manager/pkg/uuid"
+
 	"github.com/Uikola/task-manager/internal/adapters/logwriter"
 	"github.com/Uikola/task-manager/internal/adapters/logwriter/async"
 	"github.com/Uikola/task-manager/pkg/closer"
@@ -22,7 +24,8 @@ type serviceProvider struct {
 	httpConfig   config.HTTP
 	loggerConfig config.Logger
 
-	logger logger.Logger
+	logger        logger.Logger
+	uuidGenerator uuid.Generator
 
 	taskRepository repository.TaskRepository
 
@@ -67,6 +70,14 @@ func (s *serviceProvider) Logger() logger.Logger {
 	}
 
 	return s.logger
+}
+
+func (s *serviceProvider) UUIDGenerator() uuid.Generator {
+	if s.uuidGenerator == nil {
+		s.uuidGenerator = uuid.NewGenerator()
+	}
+
+	return s.uuidGenerator
 }
 
 func (s *serviceProvider) TaskRepository() repository.TaskRepository {
