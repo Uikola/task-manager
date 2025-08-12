@@ -4,12 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/Uikola/task-manager/internal/config"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/Uikola/task-manager/internal/config"
 
 	httpserver "github.com/Uikola/task-manager/internal/adapters/transport/http"
 	"github.com/Uikola/task-manager/pkg/closer"
